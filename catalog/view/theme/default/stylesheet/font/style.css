@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Core Sans C';
+    src: local('Core Sans C 75 ExtraBold'), local('Core-Sans-C-75-ExtraBold'),
+        url('CoreSansC-75ExtraBold.woff2') format('woff2'),
+        url('CoreSansC-75ExtraBold.woff') format('woff'),
+        url('CoreSansC-75ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+  }

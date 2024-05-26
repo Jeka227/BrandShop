@@ -1,0 +1,8 @@
+2024-04-16 18:46:59 - PHP Notice:  date_default_timezone_set(): Timezone ID 'Europe/Kyiv' is invalid in D:\OSPanel\domains\BrandShop\catalog\controller\startup\startup.php on line 37
+2024-04-16 18:47:12 - PHP Notice:  date_default_timezone_set(): Timezone ID 'Europe/Kyiv' is invalid in D:\OSPanel\domains\BrandShop\catalog\controller\startup\startup.php on line 37
+2024-04-16 18:47:20 - PHP Notice:  date_default_timezone_set(): Timezone ID 'Europe/Kyiv' is invalid in D:\OSPanel\domains\BrandShop\admin\controller\startup\startup.php on line 17
+2024-04-16 18:47:26 - PHP Notice:  date_default_timezone_set(): Timezone ID 'Europe/Kyiv' is invalid in D:\OSPanel\domains\BrandShop\admin\controller\startup\startup.php on line 17
+2024-04-16 18:47:26 - PHP Notice:  date_default_timezone_set(): Timezone ID 'Europe/Kyiv' is invalid in D:\OSPanel\domains\BrandShop\admin\controller\startup\startup.php on line 17
+2024-04-16 18:47:27 - PHP Notice:  date_default_timezone_set(): Timezone ID 'Europe/Kyiv' is invalid in D:\OSPanel\domains\BrandShop\admin\controller\startup\startup.php on line 17
+2024-04-16 18:47:28 - PHP Notice:  date_default_timezone_set(): Timezone ID 'Europe/Kyiv' is invalid in D:\OSPanel\domains\BrandShop\admin\controller\startup\startup.php on line 17
+2024-04-16 18:47:35 - PHP Notice:  date_default_timezone_set(): Timezone ID 'Europe/Kyiv' is invalid in D:\OSPanel\domains\BrandShop\admin\controller\startup\startup.php on line 17

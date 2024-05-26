@@ -1,0 +1,285 @@
+2024-05-24 15:28:54 - MOD: Modification Default
+
+FILE: system/engine/action.php
+REGEX: ~(require|include)(_once)?\(([^)]+)~
+LINE: 69
+
+FILE: system/engine/loader.php
+REGEX: ~(require|include)(_once)?\(([^)]+)~
+LINE: 77
+LINE: 151
+LINE: 168
+
+FILE: system/library/config.php
+REGEX: ~(require|include)(_once)?\(([^)]+)~
+LINE: 59
+
+FILE: system/library/language.php
+REGEX: ~(require|include)(_once)?\(([^)]+)~
+LINE: 68
+LINE: 74
+
+FILE: system/library/template/template.php
+REGEX: ~(require|include)(_once)?\(([^)]+)~
+LINE: 18
+
+FILE: system/library/template/twig.php
+CODE: if (is_file($file)) {
+LINE: 13
+----------------------------------------------------------------
+MOD: Обновление цены при выборе опций OC2 (без AJAX)
+
+FILE: catalog/model/catalog/product.php
+CODE: 'weight'                  => $product_option_value['weight'],
+LINE: 366
+
+FILE: catalog/controller/product/product.php
+CODE: $data['options'] = array();
+LINE: 386
+CODE: $product_option_value_data[] = array(
+LINE: 406
+----------------------------------------------------------------
+MOD: Dream Filter
+CODE: 'weight'                  => $product_option_value['weight'],
+LINE: 370
+CODE: $data['options'] = array();
+LINE: 418
+CODE: $product_option_value_data[] = array(
+LINE: 438
+
+FILE: catalog/controller/product/category.php
+CODE: $product_total = $this->model_catalog_product
+LINE: 207
+
+FILE: catalog/controller/product/manufacturer.php
+CODE: $product_total = $this->model_catalog_product
+LINE: 199
+
+FILE: catalog/controller/product/search.php
+CODE: $product_total = $this->model_catalog_product
+LINE: 198
+
+FILE: catalog/controller/product/special.php
+CODE: $product_total = $this->model_catalog_product
+LINE: 102
+CODE: $data['sorts'] =
+LINE: 277
+CODE: $data['limits'] =
+LINE: 356
+CODE: $pagination = new Pagination();
+LINE: 395
+CODE: $data['sorts'] =
+LINE: 263
+CODE: $data['limits'] =
+LINE: 338
+CODE: $pagination = new Pagination();
+LINE: 373
+CODE: $data['sorts'] =
+LINE: 166
+CODE: $data['limits'] =
+LINE: 241
+CODE: $pagination = new Pagination();
+LINE: 276
+CODE: $data['sorts'] =
+LINE: 282
+CODE: $data['limits'] =
+LINE: 377
+CODE: $pagination = new Pagination();
+LINE: 432
+CODE: $data['column_left'] = $this->load->controller('common/column_left');
+LINE: 489
+CODE: $data['column_left'] = $this->load->controller('common/column_left');
+LINE: 369
+CODE: $data['column_left'] = $this->load->controller('common/column_left');
+LINE: 515
+CODE: $data['column_left'] = $this->load->controller('common/column_left');
+LINE: 462
+CODE: $rdr_tpl = 'category';
+LINE: 483
+CODE: $rdr_tpl = 'category';
+LINE: 337
+CODE: getTotalProductSpecials()
+LINE: 102
+CODE: public function getProducts($data = array()) {
+LINE: 77
+CODE: public function getTotalProducts($data = array()) {
+LINE: 457
+CODE: public function getProductSpecials($data = array()) {
+LINE: 236
+CODE: public function getTotalProductSpecials() {
+LINE: 580
+
+FILE: catalog/controller/startup/seo_url.php
+CODE: $query .= '&' . rawurlencode
+LINE: 161
+
+FILE: system/library/url.php
+CODE: return $url;
+LINE: 71
+CODE: (int)$this->request->get['page'];
+NOT FOUND - OPERATION SKIPPED!
+
+FILE: admin/model/catalog/attribute.php
+CODE: foreach ($data['attribute_description']
+LINE: 13
+LINE: 31
+CODE: deleteAttribute($attribute_id)
+LINE: 42
+
+FILE: admin/model/catalog/filter.php
+CODE: INSERT INTO " . DB_PREFIX . "filter_description
+LINE: 24
+LINE: 61
+CODE: deleteFilter($filter_group_id)
+LINE: 73
+
+FILE: admin/model/catalog/option.php
+CODE: INSERT INTO " . DB_PREFIX . "option_value_description
+LINE: 24
+LINE: 61
+CODE: deleteOption($option_id)
+LINE: 74
+
+FILE: admin/model/catalog/category.php
+CODE: $this->cache->delete
+LINE: 78
+LINE: 87
+LINE: 222
+LINE: 231
+LINE: 244
+LINE: 253
+LINE: 284
+LINE: 293
+
+FILE: admin/model/catalog/manufacturer.php
+CODE: $this->cache->delete
+LINE: 59
+LINE: 134
+LINE: 152
+
+FILE: admin/model/catalog/product.php
+CODE: $this->cache->delete
+LINE: 159
+LINE: 168
+LINE: 356
+LINE: 365
+LINE: 378
+LINE: 387
+LINE: 455
+LINE: 464
+
+FILE: admin/model/localisation/length_class.php
+CODE: $this->cache->delete
+LINE: 17
+LINE: 37
+LINE: 50
+
+FILE: admin/model/localisation/weight_class.php
+CODE: $this->cache->delete
+LINE: 17
+LINE: 37
+LINE: 50
+----------------------------------------------------------------
+MOD: DEV-OPENCART.COM — FilterVier SEO
+CODE: public function index() {
+LINE: 11
+CODE: $product_total = $this->model_catalog_product
+LINE: 213
+CODE: $results = $this->model_catalog_product->getProducts($filter_data);
+LINE: 215
+CODE: $results = $this->model_catalog_category->getCategories($category_id);
+LINE: 189
+CODE: $results = $this->model_catalog_category->getCategories($category_id);
+LINE: 194
+CODE: . '&sort=
+LINE: 299
+LINE: 305
+LINE: 311
+LINE: 317
+LINE: 323
+LINE: 330
+LINE: 336
+LINE: 343
+LINE: 349
+CODE: $url . '&limit=
+LINE: 383
+CODE: $url . '&page={page}
+LINE: 416
+CODE: $data['header'] = $this->load->controller('common/header');
+LINE: 528
+LINE: 591
+CODE: public function info() {
+LINE: 62
+CODE: $product_total = $this->model_catalog_product
+LINE: 205
+CODE: $results = $this->model_catalog_product->getProducts($filter_data);
+LINE: 207
+CODE: . '&sort=
+LINE: 274
+LINE: 280
+LINE: 286
+LINE: 292
+LINE: 298
+LINE: 305
+LINE: 311
+LINE: 318
+LINE: 324
+CODE: $url . '&limit=
+LINE: 354
+CODE: $url . '&page={page}
+LINE: 383
+CODE: $data['header'] = $this->load->controller('common/header');
+LINE: 490
+CODE: public function index() {
+LINE: 8
+CODE: $product_total = $this->model_catalog_product
+LINE: 108
+CODE: $results = $this->model_catalog_product->getProductSpecials($filter_data);
+LINE: 110
+CODE: 'sort=
+LINE: 177
+LINE: 183
+LINE: 189
+LINE: 195
+LINE: 201
+LINE: 208
+LINE: 214
+LINE: 221
+LINE: 227
+CODE: $url . '&limit=
+LINE: 257
+CODE: $url . '&page={page}
+LINE: 286
+CODE: $data['header'] = $this->load->controller('common/header');
+LINE: 395
+
+FILE: system/library/document.php
+CODE: public function getLinks()
+LINE: 116
+CODE: public function index() {
+LINE: 19
+CODE: $this->config->get('config_store_id') . "'");
+LINE: 52
+CODE: if ($data) {
+LINE: 184
+CODE: $query = '?'
+LINE: 199
+
+FILE: system/library/seopro.php
+CODE: public function __construct($registry) {
+LINE: 32
+CODE: $this->registry = $registry;
+LINE: 41
+CODE: unset($parts[$id]);
+LINE: 108
+CODE: $url .= '/' . rawurlencode($row);
+LINE: 363
+CODE: if (rawurldecode($url) != rawurldecode($seo)
+LINE: 571
+CODE: if (php_sapi_name() === 'cli')
+LINE: 517
+
+FILE: catalog/controller/extension/feed/google_sitemap.php
+CODE: $output .= '</urlset>';
+LINE: 72
+----------------------------------------------------------------

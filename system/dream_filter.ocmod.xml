@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+	<name>Dream Filter</name>
+	<version>2.3</version>
+	<code>Feofan Club</code>
+	<author>feofan.club</author>
+    <link>https://feofan.club</link>
+
+	  <file path="catalog/view/theme/luxshop/template/product/product.twig">
+    <operation>
+      <search><![CDATA[value="{{ option_value.product_option_value_id }}"]]></search>
+      <add position="replace"><![CDATA[value="{{ option_value.product_option_value_id }}" data-points="{{ option_value.points_value is defined ? option_value.points_value : 0 }}" data-prefix="{{ option_value.price_prefix }}" data-price="{{ option_value.price_value }}"]]></add>
+    </operation>
+    <operation>
+      <search><![CDATA[{{ footer }}]]></search>
+      <add position="before"><![CDATA[
+<script>
+function price_format_autocalc(n)
+{ 
+    c = {{ currency_autocalc.decimals is empty ? 0 : currency_autocalc.decimals }};
+    d = '{{ currency_autocalc.decimal_point }}'; 
+    t = '{{ currency_autocalc.thousand_point }}'; 
+    s_left = '{{ currency_autocalc.symbol_left }}';
+    s_right = '{{ currency_autocalc.symbol_right }}';
+     
+    n = n * {{ currency_autocalc.value }};
+    i = parseInt(n = Math.abs(n).toFixed(c)) + ''; 
+
+    j = ((j = i.length) > 3) ? j % 3 : 0; 
+    return s_left + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '') + s_right; 
+}
+
+function calculate_tax_autocalc(price)
+{
+    {# Process Tax Rates #}
+ {% if (tax_rates is defined and tax) %}
+ {% for tax_rate in tax_rates %} 
+ {% if (tax_rate.type == 'F') %}
+ {{ 'price += '~tax_rate.rate~';' }}
+ {% elseif (tax_rate.type == 'P') %}
+ {{ 'price += (price * '~tax_rate.rate~') / 100.0;' }}
+ {% endif %}
+ {% endfor %}
+ {% endif %}
+ 
+    return price;
+}
+
+function process_discounts_autocalc(price, quantity)
+{
+     {% for discount in dicounts_unf_autocalc %} 
+ {{ 'if ((quantity >= '~discount.quantity~') && ('~discount.price~' < price)) price = '~discount.price~';'~"\n" }}
+ {% endfor %}
+ 
+    return price;
+}
+
+
+animate_delay = 10;
+
+main_price_autocalc_final = calculate_tax_autocalc({{ price_value }});
+main_price_autocalc_start = calculate_tax_autocalc({{ price_value }});
+main_step = 0;
+main_timeout_id = 0;
+
+function animateMainPrice_callback() {
+    main_price_autocalc_start += main_step;
+    
+    if ((main_step > 0) && (main_price_autocalc_start > main_price_autocalc_final)){
+        main_price_autocalc_start = main_price_autocalc_final;
+    } else if ((main_step < 0) && (main_price_autocalc_start < main_price_autocalc_final)) {
+        main_price_autocalc_start = main_price_autocalc_final;
+    } else if (main_step == 0) {
+        main_price_autocalc_start = main_price_autocalc_final;
+    }
+    
+    $('.autocalc-product-price').html( price_format_autocalc(main_price_autocalc_start) );
+    
+    if (main_price_autocalc_start != main_price_autocalc_final) {
+        main_timeout_id = setTimeout(animateMainPrice_callback, animate_delay);
+    }
+}
+
+function animateMainPriceAutocalc(price) {
+    main_price_autocalc_start = main_price_autocalc_final;
+    main_price_autocalc_final = price;
+    main_step = (main_price_autocalc_final - main_price_autocalc_start) / 10;
+    
+    clearTimeout(main_timeout_id);
+    main_timeout_id = setTimeout(animateMainPrice_callback, animate_delay);
+}
+
+
+{% if (special) %} 
+special_autocalc_price_final = calculate_tax_autocalc({{ special_value }});
+special_autocalc_price_start = calculate_tax_autocalc({{ special_value }});
+special_autocalc_step = 0;
+special_autocalc_timeout_id = 0;
+
+function animateSpecialPrice_autocalc_callback_autocalc() {
+    special_autocalc_price_start += special_autocalc_step;
+    
+    if ((special_autocalc_step > 0) && (special_autocalc_price_start > special_autocalc_price_final)){
+        special_autocalc_price_start = special_autocalc_price_final;
+    } else if ((special_autocalc_step < 0) && (special_autocalc_price_start < special_autocalc_price_final)) {
+        special_autocalc_price_start = special_autocalc_price_final;
+    } else if (special_autocalc_step == 0) {
+        special_autocalc_price_start = special_autocalc_price_final;
+    }
+    
+    $('.autocalc-product-special').html( price_format_autocalc(special_autocalc_price_start) );
+    
+    if (special_autocalc_price_start != special_autocalc_price_final) {
+        special_autocalc_timeout_id = setTimeout(animateSpecialPrice_autocalc_callback_autocalc, animate_delay);
+    }
+}
+
+function animateSpecialPrice_autocalc(price) {
+    special_autocalc_price_start = special_autocalc_price_final;
+    special_autocalc_price_final = price;
+    special_autocalc_step = (special_autocalc_price_final - special_autocalc_price_start) / 10;
+    
+    clearTimeout(special_autocalc_timeout_id);
+    special_autocalc_timeout_id = setTimeout(animateSpecialPrice_autocalc_callback_autocalc, animate_delay);
+}
+{% endif %} 
+
+
+function recalculateprice_autocalc()
+{
+    var main_price_autocalc = {{ price_value }};
+    var input_quantity = Number($('#product input[name="quantity"]').val());
+    {% if special %} 
+		var special_autocalc = {{ special_value }};
+	{% else %} 
+		var special_autocalc = 0;
+	{% endif %} 
+    var tax = 0;
+    
+    if (isNaN(input_quantity)) input_quantity = 0;
+    
+    {% if special %} 
+        special_coefficient = {{ price_value/special_value }};
+    {% endif %} 
+    main_price_autocalc = process_discounts_autocalc(main_price_autocalc, input_quantity);
+    tax = process_discounts_autocalc(tax, input_quantity);
+    
+    
+    var option_price = 0;
+    
+    {% if points %} 
+      var points = {{ points_value }};
+      $('input:checked,option:selected').each(function() {
+          if ($(this).data('points')) points += Number($(this).data('points'));
+      });
+      $('.autocalc-product-points').html(points);
+    {% endif %} 
+    
+    $('input:checked,option:selected').each(function() {
+      if ($(this).data('prefix') == '=') {
+        option_price += Number($(this).data('price'));
+        main_price_autocalc = 0;
+        special_autocalc = 0;
+      }
+    });
+    
+    $('input:checked,option:selected').each(function() {
+      if ($(this).data('prefix') == '+') {
+        option_price += Number($(this).data('price'));
+      }
+      if ($(this).data('prefix') == '-') {
+        option_price -= Number($(this).data('price'));
+      }
+      if ($(this).data('prefix') == 'u') {
+        pcnt = 1.0 + (Number($(this).data('price')) / 100.0);
+        option_price *= pcnt;
+        main_price_autocalc *= pcnt;
+        special_autocalc *= pcnt;
+      }
+      if ($(this).data('prefix') == 'd') {
+        pcnt = 1.0 - (Number($(this).data('price')) / 100.0);
+        option_price *= pcnt;
+        main_price_autocalc *= pcnt;
+        special_autocalc *= pcnt;
+      }
+      if ($(this).data('prefix') == '*') {
+        option_price *= Number($(this).data('price'));
+        main_price_autocalc *= Number($(this).data('price'));
+        special_autocalc *= Number($(this).data('price'));
+      }
+    });
+    
+    special_autocalc += option_price;
+    main_price_autocalc += option_price;
+
+    {% if special %} 
+      main_price_autocalc = special_autocalc * special_coefficient;
+      tax = special_autocalc;
+    {% else %} 
+      tax = main_price_autocalc;
+    {% endif %} 
+    
+    // Process TAX.
+    main_price_autocalc = calculate_tax_autocalc(main_price_autocalc);
+    special_autocalc = calculate_tax_autocalc(special_autocalc);
+    
+    // Раскомментировать, если нужен вывод цены с умножением на количество
+    main_price_autocalc *= input_quantity;
+    special_autocalc *= input_quantity;
+    tax *= input_quantity;
+
+    // Display Main Price
+    animateMainPriceAutocalc(main_price_autocalc);
+      
+    {% if special %} 
+      animateSpecialPrice_autocalc(special_autocalc);
+    {% endif %} 
+}
+
+$(document).ready(function() {
+    $('#product input[type="checkbox"]').bind('change', function() { recalculateprice_autocalc(); });
+    $('#product input[type="radio"]').bind('change', function() { recalculateprice_autocalc(); });
+    $('#product select').bind('change', function() { recalculateprice_autocalc(); });
+    
+    $quantity_autocalc = $('#product input[name="quantity"]');
+    $quantity_autocalc.data('val', $quantity_autocalc.val());
+    (function() {
+        if ($quantity_autocalc.val() != $quantity_autocalc.data('val')){
+            $quantity_autocalc.data('val',$quantity_autocalc.val());
+            recalculateprice_autocalc();
+        }
+        setTimeout(arguments.callee, 250);
+    })();    
+    
+    {% if (config_additional_settings_luxshop['price_recalc'] is defined and (config_additional_settings_luxshop['price_recalc'] == '1')) %}
+    recalculateprice_autocalc();
+	{% endif %}
+});
+</script>
+      ]]></add>
+    </operation>
+  </file>
+  <file path="catalog/model/catalog/product.php">
+    <operation>
+      <search><![CDATA['weight'                  => $product_option_value['weight'],]]></search>
+      <add position="before"><![CDATA[
+          'points'        => $product_option_value['points'],
+          'points_prefix' => $product_option_value['points_prefix'],
+      ]]></add>
+    </operation>
+  </file> 
+  <file path="catalog/controller/product/product.php">
+    <operation>
+      <search><![CDATA[$data['options'] = array();]]></search>
+      <add position="before"><![CDATA[
+          if ($data['price']) {
+              $data['price'] = '<span class=\'autocalc-product-price\'>' . $data['price'] . '</span>';
+          }
+          if ($data['special']) {
+              $data['special'] = '<span class=\'autocalc-product-special\'>' . $data['special'] . '</span>';
+          }
+          if ($data['points']) {
+              $data['points'] = '<span class=\'autocalc-product-points\'>' . $data['points'] . '</span>';
+          }
+          
+          $data['price_value'] = $product_info['price'];
+          $data['special_value'] = $product_info['special'];
+          $data['tax_value'] = (float)$product_info['special'] ? $product_info['special'] : $product_info['price'];
+          $data['points_value'] = $product_info['points'];
+          
+          $var_currency_autocalc = array();
+          $currency_code_autocalc = $this->session->data['currency'];
+          $var_currency_autocalc['value'] = $this->currency->getValue($currency_code_autocalc);
+          $var_currency_autocalc['symbol_left'] = $this->currency->getSymbolLeft($currency_code_autocalc);
+          $var_currency_autocalc['symbol_right'] = $this->currency->getSymbolRight($currency_code_autocalc);
+          $var_currency_autocalc['decimals'] = $this->currency->getDecimalPlace($currency_code_autocalc);
+          $var_currency_autocalc['decimal_point'] = $this->language->get('decimal_point');
+          $var_currency_autocalc['thousand_point'] = $this->language->get('thousand_point');
+          $data['currency_autocalc'] = $var_currency_autocalc;
+          
+          $data['dicounts_unf_autocalc'] = $discounts;
+
+          $data['tax_class_id'] = $product_info['tax_class_id'];
+          $data['tax_rates'] = $this->tax->getRates(0, $product_info['tax_class_id']);
+
+      ]]></add>
+    </operation>
+    <operation>
+      <search><![CDATA[$product_option_value_data[] = array(]]></search>
+      <add position="after"><![CDATA[
+          'price_value'                   => $option_value['price'],
+          'points_value'                  => intval($option_value['points_prefix'].$option_value['points']),
+      ]]></add>
+    </operation>
+  </file>
+  
+	<file path="catalog/controller/product/{category,manufacturer,search}.php">
+		<operation>
+			<ignoreif><![CDATA[$product_total = $this->model_catalog_product->getTotalProducts]]></ignoreif>
+			<search><![CDATA[$results = $this->model_catalog_product->getProducts]]></search>
+			<add position="before"><![CDATA[
+			//Dream filter start
+			$filter_data['rdrf'] = isset($this->request->get['rdrf']) ? $this->request->get['rdrf'] : array();
+			//Dream filter end
+			]]></add>
+		</operation>
+		<operation>
+			<ignoreif><![CDATA[$product_total = $this->model_catalog_product->getFoundProducts]]></ignoreif>
+			<search><![CDATA[$product_total = $this->model_catalog_product]]></search>
+			<add position="before"><![CDATA[
+			//Dream filter start
+			$filter_data['rdrf'] = isset($this->request->get['rdrf']) ? $this->request->get['rdrf'] : array();
+			//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/product/special.php">
+		<operation>
+			<ignoreif><![CDATA[$product_total = $this->model_catalog_product->getTotalProductSpecials]]></ignoreif>
+			<search><![CDATA[$results = $this->model_catalog_product->getProductSpecials]]></search>
+			<add position="before"><![CDATA[
+			//Dream filter start IGNORE
+			$filter_data['rdrf'] = isset($this->request->get['rdrf']) ? $this->request->get['rdrf'] : array();
+			//Dream filter end IGNORE
+			]]></add>
+		</operation>
+		<operation>
+			<ignoreif><![CDATA[$product_total = $this->model_catalog_product->getFoundProducts]]></ignoreif>
+			<search><![CDATA[$product_total = $this->model_catalog_product]]></search>
+			<add position="before"><![CDATA[
+			//Dream filter start
+			$filter_data['rdrf'] = isset($this->request->get['rdrf']) ? $this->request->get['rdrf'] : array();
+			//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/product/{category,manufacturer,special,search}.php">
+		<operation>
+			<search><![CDATA[$data['sorts'] =]]></search>
+			<add position="before"><![CDATA[
+			//Dream filter start
+			if (isset($this->request->get['rdrf'])) {
+				$url .= '&' . http_build_query(array('rdrf' => $this->request->get['rdrf']));
+			}
+			//Dream filter end
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$data['limits'] =]]></search>
+			<add position="before"><![CDATA[
+			//Dream filter start
+			if (isset($this->request->get['rdrf'])) {
+				$url .= '&' . http_build_query(array('rdrf' => $this->request->get['rdrf']));
+			}
+			//Dream filter end
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$pagination = new Pagination();]]></search>
+			<add position="before"><![CDATA[
+			//Dream filter start
+			if (isset($this->request->get['rdrf'])) {
+				$url .= '&' . http_build_query(array('rdrf' => $this->request->get['rdrf']));
+			}
+			//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/product/{category,special,search}.php">
+		<operation error="abort">
+			<search index="0"><![CDATA[$data['column_left'] = $this->load->controller('common/column_left');]]></search>
+			<add position="before"><![CDATA[
+			//Dream filter start
+			if(!empty($this->request->get['rdf-ajax'])) {
+				$rdr_tpl = 'category';
+
+				$data['column_left'] = '';
+				$data['column_right'] = '';
+				$data['content_top'] = '';
+				$data['content_bottom'] = '';
+				$data['footer'] = '';
+				$data['header'] = '';
+
+				$html = '<div>' . $this->load->view('product/' . $rdr_tpl, $data) . '</div>';
+
+				if(!empty($this->request->get['rdf-reload']) && !empty($this->request->get['rdf-module'])) {
+					$this->load->model('extension/dream_filter');
+					if($this->config->get('rdrf_sub_categories')) {
+						$filter_data['filter_sub_category'] = 1;
+					}
+					$filters = empty($filter_data) ? array() : $this->model_extension_dream_filter->getFiltersJSON($filter_data, $this->request->get['rdf-module']);
+					$json = array(
+						'html' => $html,
+						'filters' => $filters
+					);
+					//Отсылаем в ответ данные в формате json
+					$this->response->addHeader('Content-Type: application/json');
+					$this->response->setOutput(json_encode($json));
+				} else {
+					$this->response->setOutput($html);
+				}
+				$this->response->output();
+				exit;
+			}
+			//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/product/manufacturer.php">
+		<operation error="abort">
+			<search index="1"><![CDATA[$data['column_left'] = $this->load->controller('common/column_left');]]></search>
+			<add position="before"><![CDATA[
+			//Dream filter start
+			if(!empty($this->request->get['rdf-ajax'])) {
+				$rdr_tpl = 'manufacturer_info';
+
+				$data['column_left'] = '';
+				$data['column_right'] = '';
+				$data['content_top'] = '';
+				$data['content_bottom'] = '';
+				$data['footer'] = '';
+				$data['header'] = '';
+
+				$html = '<div>' . $this->load->view('product/' . $rdr_tpl, $data) . '</div>';
+
+				if(!empty($this->request->get['rdf-reload']) && !empty($this->request->get['rdf-module'])) {
+					$this->load->model('extension/dream_filter');
+					$filters = empty($filter_data) ? array() : $this->model_extension_dream_filter->getFiltersJSON($filter_data, $this->request->get['rdf-module']);
+					$json = array(
+						'html' => $html,
+						'filters' => $filters
+					);
+					//Отсылаем в ответ данные в формате json
+					$this->response->addHeader('Content-Type: application/json');
+					$this->response->setOutput(json_encode($json));
+				} else {
+					$this->response->setOutput($html);
+				}
+				$this->response->output();
+				exit;
+			}
+			//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/product/search.php">
+		<operation error="abort">
+			<search><![CDATA[$rdr_tpl = 'category';]]></search>
+			<add position="replace"><![CDATA[$rdr_tpl = 'search';]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/product/special.php">
+		<operation error="abort">
+			<search><![CDATA[$rdr_tpl = 'category';]]></search>
+			<add position="replace"><![CDATA[$rdr_tpl = 'special';
+				$filter_data['special'] = true;
+			]]></add>
+		</operation>
+		<operation error="abort">
+			<search><![CDATA[getTotalProductSpecials()]]></search>
+			<add position="replace"><![CDATA[getTotalProductSpecials($filter_data)]]></add>
+		</operation>
+	</file>
+	<file path="catalog/model/catalog/product.php">
+		<operation error="abort">
+			<search><![CDATA[public function getProducts($data = array()) {]]></search>
+			<add position="after"><![CDATA[
+				//Dream filter start
+				if(!empty($data['rdrf']) && extension_loaded('ionCube Loader') && version_compare(ioncube_loader_version(), '5', '>=')) {
+					$this->load->model('extension/dream_filter');
+					if($this->config->get('rdrf_sub_categories')) {
+						$data['filter_sub_category'] = 1;
+					}
+					if(method_exists($this, 'getFoundProducts')) {
+						$this->FOUND_ROWS = $this->model_extension_dream_filter->getTotalProducts($data);
+					}
+					return $this->model_extension_dream_filter->getProducts($data);
+				}
+				//Dream filter end
+			]]></add>
+		</operation>
+		<operation error="abort">
+			<search><![CDATA[public function getTotalProducts($data = array()) {]]></search>
+			<add position="after"><![CDATA[
+				//Dream filter start
+				if(!empty($data['rdrf']) && extension_loaded('ionCube Loader') && version_compare(ioncube_loader_version(), '5', '>=')) {
+					$this->load->model('extension/dream_filter');
+					if($this->config->get('rdrf_sub_categories')) {
+						$data['filter_sub_category'] = 1;
+					}
+					return $this->model_extension_dream_filter->getTotalProducts($data);
+				}
+				//Dream filter end
+			]]></add>
+		</operation>
+		<operation error="abort">
+			<search><![CDATA[public function getProductSpecials($data = array()) {]]></search>
+			<add position="after"><![CDATA[
+				//Dream filter start
+				if(!empty($data['rdrf']) && extension_loaded('ionCube Loader') && version_compare(ioncube_loader_version(), '5', '>=')) {
+					$this->load->model('extension/dream_filter');
+					$data['special'] = true;
+					return $this->model_extension_dream_filter->getProducts($data);
+				}
+				//Dream filter end
+			]]></add>
+		</operation>
+		<operation error="abort">
+			<search><![CDATA[public function getTotalProductSpecials() {]]></search>
+			<add position="replace"><![CDATA[public function getTotalProductSpecials($data = array()) {
+				//Dream filter start
+				if(!empty($data['rdrf']) && extension_loaded('ionCube Loader') && version_compare(ioncube_loader_version(), '5', '>=')) {
+					$this->load->model('extension/dream_filter');
+					$data['special'] = true;
+					return $this->model_extension_dream_filter->getTotalProducts($data);
+				}
+				//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/{common,startup}/seo_url.php">
+		<operation error="skip">
+			<search><![CDATA[$query .= '&' . rawurlencode]]></search>
+			<add position="before"><![CDATA[
+			//Dream filter start
+			if(is_array($value)) { $value = http_build_query($value); }
+			//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="system/library/url.php">
+		<operation>
+			<search><![CDATA[return $url;]]></search>
+			<add position="before"><![CDATA[
+		//Dream filter fix start
+		$url = str_replace(array('%25', '%26amp%3B'), array('%', '%26'), $url);
+		//Dream filter fix end
+			]]></add>
+		</operation>
+	</file>
+	<!-- opencart-russia fix -->
+	<file path="catalog/controller/{common,startup}/seo_url.php">
+		<operation error="skip">
+			<search><![CDATA[(int)$this->request->get['page'];]]></search>
+			<add position="after"><![CDATA[
+				//Dream filter start
+				if(isset($this->request->get['rdrf'])) {
+					$arg .= (strripos($arg, '?') === false ? '?' : '&') . http_build_query(array('rdrf' => $this->request->get['rdrf']));
+				}
+				if(isset($this->request->get['rdf-reload'])) {
+					$arg .= (strripos($arg, '?') === false ? '?' : '&') . 'rdf-reload=' . (int)$this->request->get['rdf-reload'];
+				}
+				if(isset($this->request->get['rdf-module'])) {
+					$arg .= (strripos($arg, '?') === false ? '?' : '&') . 'rdf-module=' . (int)$this->request->get['rdf-module'];
+				}
+				if(isset($this->request->get['rdf-ajax'])) {
+					$arg .= (strripos($arg, '?') === false ? '?' : '&') . 'rdf-ajax=' . (int)$this->request->get['rdf-ajax'];
+				}
+				//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<!-- Caching -->
+	<file path="admin/model/catalog/attribute.php">
+		<operation error="skip">
+			<search><![CDATA[foreach ($data['attribute_description']]]></search>
+			<add position="after" offset="2"><![CDATA[
+		//Dream filter start
+		$this->load->model('catalog/dream_filter');
+		$this->model_catalog_dream_filter->cleanCache();
+		//Dream filter end
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[deleteAttribute($attribute_id)]]></search>
+			<add position="after" offset="2"><![CDATA[
+		//Dream filter start
+		$this->load->model('catalog/dream_filter');
+		$this->model_catalog_dream_filter->cleanCache();
+		//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="admin/model/catalog/filter.php">
+		<operation error="skip">
+			<search><![CDATA[INSERT INTO " . DB_PREFIX . "filter_description]]></search>
+			<add position="after" offset="3"><![CDATA[
+		//Dream filter start
+		$this->load->model('catalog/dream_filter');
+		$this->model_catalog_dream_filter->cleanCache();
+		//Dream filter end
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[deleteFilter($filter_group_id)]]></search>
+			<add position="after" offset="4"><![CDATA[
+		//Dream filter start
+		$this->load->model('catalog/dream_filter');
+		$this->model_catalog_dream_filter->cleanCache();
+		//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="admin/model/catalog/option.php">
+		<operation error="skip">
+			<search><![CDATA[INSERT INTO " . DB_PREFIX . "option_value_description]]></search>
+			<add position="after" offset="4"><![CDATA[
+		//Dream filter start
+		$this->load->model('catalog/dream_filter');
+		$this->model_catalog_dream_filter->cleanCache();
+		//Dream filter end
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[deleteOption($option_id)]]></search>
+			<add position="after" offset="4"><![CDATA[
+		//Dream filter start
+		$this->load->model('catalog/dream_filter');
+		$this->model_catalog_dream_filter->cleanCache();
+		//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="admin/model/catalog/{category,manufacturer,product}*.php">
+		<operation error="skip">
+			<search><![CDATA[$this->cache->delete]]></search>
+			<add position="before"><![CDATA[
+		//Dream filter start
+		$this->load->model('catalog/dream_filter');
+		$this->model_catalog_dream_filter->cleanCache();
+		//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+	<file path="admin/model/localisation/{length_class,weight_class}*.php">
+		<operation>
+			<search><![CDATA[$this->cache->delete]]></search>
+			<add position="before"><![CDATA[
+		//Dream filter start
+		$this->load->model('catalog/dream_filter');
+		$this->model_catalog_dream_filter->cleanCache();
+		//Dream filter end
+			]]></add>
+		</operation>
+	</file>
+</modification>

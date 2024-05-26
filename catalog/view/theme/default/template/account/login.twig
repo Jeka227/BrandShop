@@ -1,0 +1,70 @@
+{{ header }}
+<div id="account-login" class="container">
+{# <ul class="breadcrumb_new">
+    {% for breadcrumb in breadcrumbs %}
+    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+
+    </li>
+         {% if not loop.last %}
+      <svg width="5" height="12" viewBox="0 0 5 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.157568 10.9358C-0.0436482 10.7467 -0.0534543 10.4302 0.135666 10.229L3.92592 6.19633C4.02469 6.09124 4.02469 5.90878 3.92592 5.8037L0.135667 1.77102C-0.0534536 1.5698 -0.0436474 1.25337 0.157569 1.06425C0.358786 0.875128 0.675216 0.884934 0.864336 1.08615L4.65459 5.11883C5.11514 5.60883 5.11514 6.39119 4.65459 6.88119L0.864336 10.9139C0.675215 11.1151 0.358785 11.1249 0.157568 10.9358Z" fill="#807D7E"/>
+      </svg>
+    {% endif %}
+       
+    {% endfor %}
+  </ul> #}
+  
+  {% if success %}
+  <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}</div>
+  {% endif %}
+  {% if error_warning %}
+  <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>
+  {% endif %}
+  <div class="row" style="
+    display: flex;
+    justify-content: center;
+">{{ column_left }}
+    {% if column_left and column_right %}
+    {% set class = 'col-sm-6' %}
+    {% elseif column_left or column_right %}
+    {% set class = 'col-sm-9' %}
+    {% else %}
+    {% set class = 'col-sm-12' %}
+    {% endif %}
+    <div id="content" class="{{ class }}" style="
+    display: flex;
+    align-items: center;
+">{{ content_top }}
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="well">
+            <h2>{{ text_new_customer }}</h2>
+          
+            <p>{{ text_register_account }}</p>
+            <a href="{{ register }}" class="btn btn-primary">{{ button_continue }}</a></div>
+        </div>
+        <div class="col-sm-6">
+          <div class="well">
+            <h2>{{ text_returning_customer }}</h2>
+            <p><strong>{{ text_i_am_returning_customer }}</strong></p>
+            <form action="{{ action }}" method="post" enctype="multipart/form-data">
+              <div class="form-group">
+                <label class="control-label" for="input-email">{{ entry_email }}</label>
+                <input type="text" name="email" value="{{ email }}" placeholder="{{ entry_email }}" id="input-email" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label class="control-label" for="input-password">{{ entry_password }}</label>
+                <input type="password" name="password" value="{{ password }}" placeholder="{{ entry_password }}" id="input-password" class="form-control" />
+                <a href="{{ forgotten }}">{{ text_forgotten }}</a></div>
+              <input type="submit" value="{{ button_login }}" class="btn btn-primary" />
+              {% if redirect %}
+              <input type="hidden" name="redirect" value="{{ redirect }}" />
+              {% endif %}
+            </form>
+          </div>
+        </div>
+      </div>
+      {{ content_bottom }}</div>
+   {#  {{ column_right }} #}</div>
+</div>
+{{ footer }}
